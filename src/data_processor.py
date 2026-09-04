@@ -71,9 +71,9 @@ def load_and_split_data(
             (
                 "ordinal",
                 OrdinalEncoder(
-                    categories=["Non-Travel", "Travel_Rarely", "Travel_Frequently"]
+                    categories=[["Non-Travel", "Travel_Rarely", "Travel_Frequently"]]
                 ),
-                "BusinessTravel",  # Only apply encoder to this feat
+                ["BusinessTravel"],  # Only apply encoder to this feat
             ),
             ("numerical", StandardScaler(), numerical_feats),
             ("nominal", OneHotEncoder(handle_unknown="ignore"), nominal_feats),
