@@ -81,15 +81,10 @@ def load_and_split_data(
         remainder="passthrough",
     )
 
-    X_train_transformed = preprocessor.fit_transform(X_train)
-    X_test_transformed = preprocessor.transform(X_test)
-    feats = preprocessor.get_feature_names_out()
-
     return {
-        "X_train": X_train_transformed,
-        "X_test": X_test_transformed,
+        "X_train": X_train,
+        "X_test": X_test,
         "y_train": y_train,
         "y_test": y_test,
-        "feats": feats,
         "preprocessor": preprocessor,
     }
