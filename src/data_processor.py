@@ -11,7 +11,7 @@ def load_and_split_data(
     random_state=42,
     stratify=True,
 ):
-    """Returns preprocessed data for modeling.
+    """Returns splitted data for modeling and unfitted preprocessor.
 
     Args:
         filepath (str): Path to dataset to transform.
@@ -21,8 +21,8 @@ def load_and_split_data(
         stratify (bool, optional): Arg for train_test_split. Defaults to True.
 
     Returns:
-        dict: Training and testing data, fitted ColumnTransformer and feats from preprocessor.
-         Keys: X_train, X_test, y_train, y_test, feats, preprocessor.
+        dict: Training and testing data, unfitted ColumnTransformer
+         Keys: X_train, X_test, y_train, y_test, preprocessor.
     """
     df = pd.read_csv(filepath)
 
