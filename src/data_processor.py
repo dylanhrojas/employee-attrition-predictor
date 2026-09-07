@@ -1,29 +1,49 @@
 import pandas as pd
-from sklearn.compose import ColumnTransformer
+from sklearn.compose import ColumnTransformer, make_column_selector
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OneHotEncoder, OrdinalEncoder, StandardScaler
 
 
 def load_and_split_data(
-    filepath,
-    target_col="Attrition",
-    test_size=0.2,
-    random_state=42,
-    stratify=True,
+    filepath, target_col="Attrition", test_size=0.2, random_state=42, stratify=True
 ):
-    """Returns splitted data for modeling and unfitted preprocessor.
+    """Retrieves clean data (convert and omit certain columns) and then uses
+    train_test_split with given arguments for modeling.
 
     Args:
-        filepath (str): Path to dataset to transform.
-        target_col (str, optional): Target to use as vector. Defaults to "Attrition".
-        test_size (float, optional): Arg for train_test_split. Defaults to 0.2.
-        random_state (int, optional): Arg for train_test_split. Defaults to 42.
-        stratify (bool, optional): Arg for train_test_split. Defaults to True.
+        filepath: Path to dataset.
+        target_col (str, optional): Target vector for y. Defaults to "Attrition".
+        test_size (float, optional): Parameter for train_test_split. Defaults to 0.2.
+        random_state (int, optional): Parameter for train_test_split. Defaults to 42.
+        stratify (bool, optional): Parameter for train_test_split. Defaults to True.
 
     Returns:
-        dict: Training and testing data, unfitted ColumnTransformer
-         Keys: X_train, X_test, y_train, y_test, preprocessor.
-    """
+        tuple: Four splits for training and testing.
+    """        
+    X, y = _clean_data(filepath, target_col)
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X,
+        y,
+        test_size=test_size,
+        random_state=random_state,
+        stratify=y if stratify else None,
+    )
+
+    return X_train, X_test, y_train, y_test
+
+
+def _clean_data(filepath, target_col="Attrition"):
+    """Private function for reading dataset and ommiting and converting specific
+    columns from 01_eda.
+
+    Args:
+        filepath: Path to dataset.
+        target_col (str, optional): Target vector for y. Defaults to "Attrition".
+
+    Returns:
+        tuple: Two vectors X, y for train_test_split process.
+    """    
     df = pd.read_csv(filepath)
 
     # Drop EmployeeCount, StandardHours and Over18 since are constant
@@ -35,37 +55,24 @@ def load_and_split_data(
             "StandardHours",
             "Over18",
             "EmployeeNumber",
-            "Attrition",
+            target_col
         ]
     )
-    y = df[target_col].map({"No": 0, "Yes": 1})
+    y = df[target_col].map({"No": False, "Yes": True})
 
-    # Nominal (binary) feats
-    X["OverTime"] = X["OverTime"].map({"No": 0, "Yes": 1})
-    X["Gender"] = X["Gender"].map({"Female": 0, "Male": 1})
+    # Binary feats
+    X["OverTime"] = X["OverTime"].map({"No": False, "Yes": True})
+    X["IsMale"] = X["Gender"].map({"Female": False, "Male": True})
 
-    # Discard these feats for numerical since they don't need scaling
-    binary_feats = ["OverTime", "Gender"]
+    return X, y
 
-    numerical_feats = [
-        f for f in X.select_dtypes(include="number").columns if f not in binary_feats
-    ]
 
-    nominal_feats = [
-        "Department",
-        "EducationField",
-        "JobRole",
-        "MaritalStatus",
-    ]
+def build_preprocessor():
+    """Data preprocessing for dataset for modeling pipeline.
 
-    X_train, X_test, y_train, y_test = train_test_split(
-        X,
-        y,
-        test_size=test_size,
-        random_state=random_state,
-        stratify=y if stratify else None,
-    )
-
+    Returns:
+        sklearn.compose.ColumnTransformer: Unfitted ColumnTransfomer for pipelines.
+    """
     preprocessor = ColumnTransformer(
         transformers=[
             (
@@ -75,16 +82,10 @@ def load_and_split_data(
                 ),
                 ["BusinessTravel"],  # Only apply encoder to this feat
             ),
-            ("numerical", StandardScaler(), numerical_feats),
-            ("nominal", OneHotEncoder(handle_unknown="ignore"), nominal_feats),
+            ("numerical", StandardScaler(), make_column_selector(dtype_include="number")),
+            ("nominal", OneHotEncoder(handle_unknown="ignore"), make_column_selector(dtype_include="string")),
         ],
         remainder="passthrough",
     )
 
-    return {
-        "X_train": X_train,
-        "X_test": X_test,
-        "y_train": y_train,
-        "y_test": y_test,
-        "preprocessor": preprocessor,
-    }
+    return preprocessor
