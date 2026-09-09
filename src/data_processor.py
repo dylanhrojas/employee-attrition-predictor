@@ -19,7 +19,7 @@ def load_and_split_data(
 
     Returns:
         tuple: Four splits for training and testing.
-    """        
+    """
     X, y = _clean_data(filepath, target_col)
 
     X_train, X_test, y_train, y_test = train_test_split(
@@ -33,40 +33,9 @@ def load_and_split_data(
     return X_train, X_test, y_train, y_test
 
 
-def _clean_data(filepath, target_col="Attrition"):
-    """Private function for reading dataset and ommiting and converting specific
-    columns from 01_eda.
-
-    Args:
-        filepath: Path to dataset.
-        target_col (str, optional): Target vector for y. Defaults to "Attrition".
-
-    Returns:
-        tuple: Two vectors X, y for train_test_split process.
-    """    
-    df = pd.read_csv(filepath)
-
-    # Drop EmployeeCount, StandardHours and Over18 since are constant
-    # Drop EmployeeNumber since it's an ID
-    # Drop target (Attrition) and store it
-    X = df.drop(
-        columns=[
-            "EmployeeCount",
-            "StandardHours",
-            "Over18",
-            "EmployeeNumber",
-            target_col
-        ]
-    )
-    y = df[target_col].map({"No": False, "Yes": True})
-
-    # Binary feats
-    X["OverTime"] = X["OverTime"].map({"No": False, "Yes": True})
-    X["IsMale"] = X["Gender"].map({"Female": False, "Male": True})
-
-    X = X.drop(columns=["Gender"])
-
-    return X, y
+def load_and_clean_data(filepath, target_col="Attrition"):
+    """Retrieves clean data (X, y) without splitting, for final model training."""
+    return _clean_data(filepath, target_col)
 
 
 def build_preprocessor():
@@ -84,10 +53,54 @@ def build_preprocessor():
                 ),
                 ["BusinessTravel"],  # Only apply encoder to this feat
             ),
-            ("numerical", StandardScaler(), make_column_selector(dtype_include="number")),
-            ("nominal", OneHotEncoder(handle_unknown="ignore"), ["Department", "EducationField", "JobRole", "MaritalStatus"]),
+            (
+                "numerical",
+                StandardScaler(),
+                make_column_selector(dtype_include="number"),
+            ),
+            (
+                "nominal",
+                OneHotEncoder(handle_unknown="ignore"),
+                ["Department", "EducationField", "JobRole", "MaritalStatus"],
+            ),
         ],
         remainder="passthrough",
     )
 
     return preprocessor
+
+
+def _clean_data(filepath, target_col="Attrition"):
+    """Private function for reading dataset and ommiting and converting specific
+    columns from 01_eda.
+
+    Args:
+        filepath: Path to dataset.
+        target_col (str, optional): Target vector for y. Defaults to "Attrition".
+
+    Returns:
+        tuple: Two vectors X, y for train_test_split process.
+    """
+    df = pd.read_csv(filepath)
+
+    # Drop EmployeeCount, StandardHours and Over18 since are constant
+    # Drop EmployeeNumber since it's an ID
+    # Drop target (Attrition) and store it
+    X = df.drop(
+        columns=[
+            "EmployeeCount",
+            "StandardHours",
+            "Over18",
+            "EmployeeNumber",
+            target_col,
+        ]
+    )
+    y = df[target_col].map({"No": False, "Yes": True})
+
+    # Binary feats
+    X["OverTime"] = X["OverTime"].map({"No": False, "Yes": True})
+    X["IsMale"] = X["Gender"].map({"Female": False, "Male": True})
+
+    X = X.drop(columns=["Gender"])
+
+    return X, y
