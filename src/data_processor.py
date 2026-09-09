@@ -64,6 +64,8 @@ def _clean_data(filepath, target_col="Attrition"):
     X["OverTime"] = X["OverTime"].map({"No": False, "Yes": True})
     X["IsMale"] = X["Gender"].map({"Female": False, "Male": True})
 
+    X = X.drop(columns=["Gender"])
+
     return X, y
 
 
@@ -83,7 +85,7 @@ def build_preprocessor():
                 ["BusinessTravel"],  # Only apply encoder to this feat
             ),
             ("numerical", StandardScaler(), make_column_selector(dtype_include="number")),
-            ("nominal", OneHotEncoder(handle_unknown="ignore"), make_column_selector(dtype_include="string")),
+            ("nominal", OneHotEncoder(handle_unknown="ignore"), ["Department", "EducationField", "JobRole", "MaritalStatus"]),
         ],
         remainder="passthrough",
     )
