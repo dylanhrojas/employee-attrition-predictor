@@ -69,15 +69,14 @@ def build_preprocessor():
 
     return preprocessor
 
-def clean_features(df: pd.DataFrame, target_col="Attrition"):
+def clean_features(df: pd.DataFrame):
     """Returns transformed DataFrame but receiving DataFrame instead of csv_path."""
     clean_df = df.drop(
         columns=[
             "EmployeeCount",
             "StandardHours",
             "Over18",
-            "EmployeeNumber",
-            target_col,
+            "EmployeeNumber"
         ]
     )
 

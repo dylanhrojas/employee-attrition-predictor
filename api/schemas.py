@@ -5,7 +5,6 @@ from pydantic import BaseModel, Field
 
 class EmployeeInput(BaseModel):
     Age: int
-    Attrition: Literal["Yes", "No"]
     BusinessTravel: Literal["Non-Travel", "Travel_Rarely", "Travel_Frequently"]
     DailyRate: int
     Department: Literal["Research & Development", "Sales", "Human Resources"]
@@ -19,6 +18,7 @@ class EmployeeInput(BaseModel):
         "Human Resources",
         "Other",
     ]
+    EmployeeCount: Literal[1] = 1
     EmployeeNumber: int
     EnvironmentSatisfaction: Annotated[int, Field(ge=1, le=4)]
     Gender: Literal["Male", "Female"]
@@ -46,6 +46,7 @@ class EmployeeInput(BaseModel):
     PercentSalaryHike: int
     PerformanceRating: Annotated[int, Field(ge=1, le=4)]
     RelationshipSatisfaction: Annotated[int, Field(ge=1, le=4)]
+    StandardHours: Literal[80] = 80
     StockOptionLevel: Annotated[int, Field(ge=1, le=3)]
     TotalWorkingYears: int
     TrainingTimesLastYear: int
