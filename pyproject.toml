@@ -12,6 +12,9 @@ dependencies = [
     "ipykernel",
     "xgboost",
     "joblib",
+    "fastapi[standard]",
+    "uvicorn[standard]",
+    "pydantic",
 ]
 
 [build-system]
