@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import joblib
 import pandas as pd
 from fastapi import FastAPI
@@ -6,7 +8,9 @@ from api.schemas import EmployeeInput, PredictionOutput
 from src.data_processor import clean_features
 
 app = FastAPI()
-model = joblib.load("../models/attrition_pipeline.joblib")
+
+MODEL_PATH = Path(__file__).resolve().parent.parent / "models" / "attrition_pipeline.joblib"
+model = joblib.load(MODEL_PATH)
 
 
 @app.post("/predict", response_model=PredictionOutput)
