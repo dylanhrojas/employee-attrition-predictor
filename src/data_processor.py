@@ -69,6 +69,26 @@ def build_preprocessor():
 
     return preprocessor
 
+def clean_features(df: pd.DataFrame, target_col="Attrition"):
+    """Returns transformed DataFrame but receiving DataFrame instead of csv_path."""
+    clean_df = df.drop(
+        columns=[
+            "EmployeeCount",
+            "StandardHours",
+            "Over18",
+            "EmployeeNumber",
+            target_col,
+        ]
+    )
+
+    # Binary feats
+    clean_df["OverTime"] = clean_df["OverTime"].map({"No": False, "Yes": True})
+    clean_df["IsMale"] = clean_df["Gender"].map({"Female": False, "Male": True})
+
+    clean_df = clean_df.drop(columns=["Gender"])
+
+    return clean_df
+
 
 def _clean_data(filepath, target_col="Attrition"):
     """Private function for reading dataset and ommiting and converting specific
