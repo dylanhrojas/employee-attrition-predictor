@@ -15,6 +15,7 @@ dependencies = [
     "fastapi[standard]",
     "uvicorn[standard]",
     "pydantic",
+    "streamlit",
 ]
 
 [build-system]
