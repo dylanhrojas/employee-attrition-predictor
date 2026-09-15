@@ -16,6 +16,7 @@ dependencies = [
     "uvicorn[standard]",
     "pydantic",
     "streamlit",
+    "requests",
 ]
 
 [build-system]
