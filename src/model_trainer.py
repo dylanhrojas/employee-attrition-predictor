@@ -35,4 +35,5 @@ pipe = Pipeline(
 )
 pipe.fit(X, y)
 
+MODEL_PATH.parent.mkdir(parents=True, exist_ok=True)
 joblib.dump(pipe, MODEL_PATH)
