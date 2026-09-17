@@ -4,20 +4,13 @@ version = "0.1.0"
 description = "Attrition predictor for employees"
 requires-python = ">=3.14"
 dependencies = [
-    "pandas",
-    "numpy",
-    "scikit-learn",
-    "matplotlib",
-    "seaborn",
-    "ipykernel",
-    "xgboost",
-    "joblib",
-    "fastapi[standard]",
-    "uvicorn[standard]",
     "pydantic",
-    "streamlit",
-    "requests",
 ]
+
+[project.optional-dependencies]
+api = ["fastapi[standard]", "uvicorn[standard]", "scikit-learn", "joblib", "pandas"]
+ui = ["streamlit", "requests"]
+dev = ["scikit-learn", "xgboost", "matplotlib", "seaborn", "pandas", "numpy", "joblib", "ipykernel"]
 
 [build-system]
 requires = ["setuptools>=61.0"]
