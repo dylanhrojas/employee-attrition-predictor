@@ -4,7 +4,7 @@ import joblib
 import pandas as pd
 from fastapi import FastAPI
 
-from api.schemas import EmployeeInput, PredictionOutput
+from schemas.employee import EmployeeInput, PredictionOutput
 from src.data_processor import clean_features
 
 app = FastAPI()

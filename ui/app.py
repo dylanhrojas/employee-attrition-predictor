@@ -5,7 +5,7 @@ import requests
 import streamlit as st
 from pydantic import BaseModel
 
-from api.schemas import EmployeeInput
+from schemas.employee import EmployeeInput
 
 st.title("Attrition Predictor")
 def pydantic_form(model: type[BaseModel], key: str = "form"):
