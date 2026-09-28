@@ -47,7 +47,7 @@ class EmployeeInput(BaseModel):
     PerformanceRating: Annotated[int, Field(ge=1, le=4)]
     RelationshipSatisfaction: Annotated[int, Field(ge=1, le=4)]
     StandardHours: Literal[80] = 80
-    StockOptionLevel: Annotated[int, Field(ge=1, le=3)]
+    StockOptionLevel: Annotated[int, Field(ge=0, le=3)]
     TotalWorkingYears: int
     TrainingTimesLastYear: int
     WorkLifeBalance: Annotated[int, Field(ge=1, le=4)]
