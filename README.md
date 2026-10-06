@@ -4,6 +4,18 @@ Binary classifier that estimates the probability that an employee leaves the com
 
 The dataset is the [IBM HR Analytics Employee Attrition & Performance](https://www.kaggle.com/datasets/pavansubhasht/ibm-hr-analytics-attrition-dataset) dataset from Kaggle (1,470 employees, 35 columns). It is synthetic, so the results say more about the modeling process than a real business case. The dataset is licensed under the [Database Contents License (DbCL) 1.0](https://opendatacommons.org/licenses/dbcl/1-0/).
 
+## Demo
+
+Running `docker compose up --build` and using the Streamlit form:
+
+![docker compose up](examples/docker_compose_up.gif)
+
+| Form | Prediction |
+|---|---|
+| ![Streamlit form](examples/01_ui.png) | ![Attrition probability](examples/02_ui.png) |
+
+There is no public deployment. The UI is an auto-generated form of ~30 fields that returns a single probability, and it runs on a generic dataset (IBM HR), so it is meant to be run locally with Docker Compose (see [Running it](#running-it)).
+
 ## Results
 
 Logistic Regression (Params: `C=0.1`, `class_weight="balanced"`) showed better results in cross-validation (comparing train vs validation). XGBClassifier and Random Forest couldn't reach the Logistic Regression metrics even after hyperparameter tuning.
@@ -68,7 +80,7 @@ Also, general employee and job satisfaction (internal survey), familiarity with 
 
 ## Limitations
 
-- The dataset is synthetic and small, and there is no time dimension, so there is no way to check how the model behaves on new employees over time.
+- The dataset is generic (IBM HR), synthetic and small, so it does not reflect any specific company, and there is no time dimension, so there is no way to check how the model behaves on new employees over time.
 - The API uses a fixed 0.5 probability cutoff.
 - The model uses `Gender`, `Age` and `MaritalStatus`. A model like this should not be used to make decisions about individual employees; at most it could help look at patterns such as overtime or time without promotion.
 - Feature engineering was not explored. The models use the original columns only.
@@ -87,6 +99,7 @@ Also, general employee and job satisfaction (internal survey), familiarity with 
 │   ├── 01_eda.ipynb
 │   └── 02_modeling.ipynb
 ├── data/raw/            Original CSV
+├── examples/            GIF and screenshots used in this README
 ├── LICENSE              MIT license for the code
 └── docker-compose.yml
 ```
