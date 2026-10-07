@@ -12,13 +12,14 @@ BEST_CLASS_WEIGHT = "balanced"
 RAW_DATA_PATH = Path(__file__).resolve().parent.parent / "data" / "raw" / "HR-Employee-Attrition.csv"
 MODEL_PATH = Path(__file__).resolve().parent.parent / "models" / "attrition_pipeline.joblib"
 
-X, y = load_and_clean_data(
+def train():
+    X, y = load_and_clean_data(
     RAW_DATA_PATH, target_col="Attrition"
-)
+    )
 
-preprocessor = build_preprocessor()
+    preprocessor = build_preprocessor()
 
-pipe = Pipeline(
+    pipe = Pipeline(
     [
         ("preprocessor", preprocessor),
         (
@@ -32,8 +33,11 @@ pipe = Pipeline(
             ),
         ),
     ]
-)
-pipe.fit(X, y)
+    )
+    pipe.fit(X, y)
 
-MODEL_PATH.parent.mkdir(parents=True, exist_ok=True)
-joblib.dump(pipe, MODEL_PATH)
+    MODEL_PATH.parent.mkdir(parents=True, exist_ok=True)
+    joblib.dump(pipe, MODEL_PATH)
+
+if __name__ == "__main__":
+    train()
