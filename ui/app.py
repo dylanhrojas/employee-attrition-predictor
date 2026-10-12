@@ -6,6 +6,7 @@ import streamlit as st
 from pydantic import BaseModel
 
 from schemas.employee import EmployeeInput
+from src.config import THRESHOLD
 
 st.title("Attrition Predictor")
 def pydantic_form(model: type[BaseModel], key: str = "form"):
@@ -52,7 +53,7 @@ if data:
         if response.ok:
             result = response.json()
             prob = result["probability"]
-            color = "red" if prob > 0.5 else "green"
+            color = "red" if prob >= THRESHOLD else "green"
 
             st.markdown(f"""
             <style>
