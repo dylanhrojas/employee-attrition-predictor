@@ -1,5 +1,7 @@
 # Employee Attrition Predictor
 
+[![CI](https://github.com/dylanhrojas/employee-attrition-predictor/actions/workflows/ci.yml/badge.svg)](https://github.com/dylanhrojas/employee-attrition-predictor/actions/workflows/ci.yml)
+
 Binary classifier that estimates the probability that an employee leaves the company, served through a FastAPI endpoint and a Streamlit form.
 
 The dataset is the [IBM HR Analytics Employee Attrition & Performance](https://www.kaggle.com/datasets/pavansubhasht/ibm-hr-analytics-attrition-dataset) dataset from Kaggle (1,470 employees, 35 columns). It is synthetic, so the results say more about the modeling process than a real business case. The dataset is licensed under the [Database Contents License (DbCL) 1.0](https://opendatacommons.org/licenses/dbcl/1-0/).
@@ -95,6 +97,8 @@ Also, general employee and job satisfaction (internal survey), familiarity with 
 ├── src/
 │   ├── data_processor.py   Cleaning, splitting, preprocessor
 │   └── model_trainer.py    Trains the final pipeline and saves it to models/
+├── tests/               pytest tests for preprocessing and the API
+├── .github/workflows/   CI workflow (ci.yml)
 ├── notebooks/
 │   ├── 01_eda.ipynb
 │   └── 02_modeling.ipynb
@@ -131,7 +135,7 @@ uvicorn api.main:app --port 8000     # terminal 1
 streamlit run ui/app.py              # terminal 2
 ```
 
-To run the notebooks, install `".[dev]"` instead.
+To run the notebooks, install `".[dev]"` instead. To run the tests, see [Tests](#tests).
 
 ### Example request
 
@@ -144,6 +148,26 @@ curl -X POST http://localhost:8000/predict \
 The API requires `EmployeeNumber` and `Over18`, but both are dropped before prediction and do not affect the result.
 
 The response has the form `{"prediction": true, "probability": 0.xx}`.
+
+## Tests
+
+```bash
+pip install ".[api,test]"
+python src/model_trainer.py   # the API tests need the trained model
+pytest
+```
+
+`models/` is in `.gitignore` and the API loads the model on import, so the model has to be trained before running the tests.
+
+- `tests/test_data_processor.py`: preprocessing (constant columns and ID dropped, `Gender` converted to `IsMale`, `OverTime` as boolean).
+- `tests/test_api.py`: the `/predict` endpoint, with a valid request, an out-of-range value and a missing field (the last two return 422 from Pydantic), plus default values.
+
+## CI
+
+A GitHub Actions workflow (`.github/workflows/ci.yml`) runs on every push to `main` and on every pull request, with two jobs:
+
+- `test`: installs the dependencies, trains the model and runs `pytest` on Python 3.14.
+- `docker`: runs only if `test` passes and builds the API and UI images with `docker compose build`. The API image also trains the model, so this works as an integration check.
 
 ## License
 
