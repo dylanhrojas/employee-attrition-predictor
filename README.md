@@ -83,10 +83,27 @@ Also, general employee and job satisfaction (internal survey), familiarity with 
 ## Limitations
 
 - The dataset is generic (IBM HR), synthetic and small, so it does not reflect any specific company, and there is no time dimension, so there is no way to check how the model behaves on new employees over time.
-- The API uses a fixed 0.5 probability cutoff.
-- The model uses `Gender`, `Age` and `MaritalStatus`. A model like this should not be used to make decisions about individual employees; at most it could help look at patterns such as overtime or time without promotion.
+- The test set has only 47 positive cases, so test metrics are noisy. The final test is below the cross-validation estimate on every metric (recall 0.660 vs 0.742, F2 0.568 vs 0.613), within two standard deviations. Hyperparameters were selected on the same CV folds, so a small optimistic bias is expected.
+- The API uses a fixed 0.5 probability cutoff. A threshold of 0.55 was evaluated with out-of-fold predictions on the training split and won in 8 of 10 seeds, but the F2 gain was marginal (0.0057 ± 0.0089), so 0.50 was kept. The dataset has no cost information, so the cutoff is not tied to a real cost of missing a leaver vs. an unnecessary review.
+- At this cutoff, precision is low (about 0.36): roughly one in three flagged employees actually leaves.
+- The model uses `Gender`, `Age` and `MaritalStatus`. No fairness analysis was run, so the model may perform differently across groups and should not be used to make decisions about individual employees; at most it could help look at patterns such as overtime or time without promotion.
+- `JobLevel` and `MonthlyIncome` are collinear (VIF above 10). They were kept because the model uses L2 regularization (`C=0.1`), but their coefficients should not be read in isolation.
 - Feature engineering was not explored. The models use the original columns only.
 - The Streamlit form returns only the probability, not an explanation of the individual prediction.
+
+## Architecture
+
+```mermaid
+flowchart LR
+    U[User] --> UI["Streamlit UI<br/>ui/app.py"]
+    UI -->|"POST /predict (JSON)"| API["FastAPI<br/>api/main.py"]
+    API --> V["Input validation<br/>schemas/employee.py"]
+    V --> M["Pipeline<br/>models/attrition_pipeline.joblib"]
+    M -->|"predict_proba"| API
+    API -->|"probability + prediction"| UI
+```
+
+The UI never loads the model: it only calls the API, which loads the trained pipeline (preprocessing + Logistic Regression) once at startup. Each service has its own Dockerfile and both run with `docker compose up`.
 
 ## Project structure
 
